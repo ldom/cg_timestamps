@@ -1,0 +1,1 @@
+kafka-consumer-groups --bootstrap-server localhost:9093 --group {{GROUP}} --topic {{TOPIC}} --reset-offsets --to-datetime {{DATETIME}} --execute
