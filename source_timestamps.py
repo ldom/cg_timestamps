@@ -54,9 +54,12 @@ def poll_timestamps(conf, consumer_timestamps_topic, callback, filter_group_topi
             if msg.error():
                 raise KafkaException(msg.error())
             else:
+                print(f"decoding a message from {msg.topic()}-{msg.partition()} (offset: {msg.offset()}")
                 decoded_key = decode_key(msg.key())
                 group_topic = GroupTopic(group=decoded_key.group, topic=decoded_key.topic)
                 timestamp = decode_value(msg.value())
+                print(f"group: {group_topic.group}, topic: {group_topic.topic}, "
+                      f"partition: {decoded_key.partition}, timestamp: {timestamp}")
 
                 if group_topic in filter_group_topic_pairs:
                     callback(group_topic.group, group_topic.topic, decoded_key.partition, timestamp)

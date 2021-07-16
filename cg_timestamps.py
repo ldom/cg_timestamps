@@ -7,12 +7,6 @@ from commands import run_command
 from source_timestamps import poll_timestamps, GroupTopic
 
 
-def read_json_input(filename):
-    with open(filename) as f:
-        input_data = json.load(f)
-        return input_data
-
-
 def handle_arguments():
     parser = argparse.ArgumentParser(description="Takes a list of topics, monitors the __consumer_timestamps topic"
                                                  "on the source cluster and runs commands to set the offsets of the "
@@ -33,10 +27,10 @@ def handle_arguments():
     return parser.parse_args()
 
 
-def read_topic_names(filename):
+def read_json_input(filename):
     with open(filename) as f:
-        data = f.read()
-    return data.splitlines()
+        input_data = json.load(f)
+        return input_data
 
 
 def read_command_template(filename):
@@ -74,7 +68,6 @@ if __name__ == '__main__':
     DATETIME_PLACEHOLDER = "{{DATETIME}}"
 
     TIMESTAMPS_TOPIC = "__consumer_timestamps"
-    REPLICATOR_CG = "replicator"  # replicator's consumer group name = connector name
 
     conf = read_json_input(args.source_connect_config)
     group_topic_pairs = read_group_topic_pairs(args.topics)
@@ -83,10 +76,11 @@ if __name__ == '__main__':
         print(f"group={group}, topic={topic}, partition={partition}, timestamp={timestamp}")
 
         dt = timestamp_to_cg_datetime(timestamp)
+        topic_partition = f"{topic}:{partition}"
 
         command = command_template.\
             replace(GROUP_PLACEHOLDER, group).\
-            replace(TOPIC_PLACEHOLDER, topic).\
+            replace(TOPIC_PLACEHOLDER, topic_partition).\
             replace(DATETIME_PLACEHOLDER, dt)
 
         print(run_command(command))
